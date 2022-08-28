@@ -2,16 +2,22 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require("mongoose");
 const bson = require('bson');
+const bodyParser = require('body-parser')
 
+// routers
+const healthRouter = require('./routes/healthRouter');
+const userRouter = require('./routes/userRouter');
+const adminRouter = require('./routes/adminRouter');
 
 var userModel = require('./model/users');
 var hostBankDetails = require('./model/host_bank_details');
 var guestCardDetails = require('./model/guest_card_details');
 var property = require('./model/property');
 var reviews = require('./model/reviews');
+var property_access = require('./model/property_access');
 
 
-var bodyParser = require('body-parser')
+
 
 var app = express();
 var jsonParser = bodyParser.json()
@@ -27,99 +33,10 @@ async function create_connection(){
         console.error("Exception occurred during connection " + e);
         process.exit(1);
     }
-    console.log("Successfully Created mongodb Connection");
+    //console.log("Successfully Created mongodb Connection");
 }
 
-app.get('/health', function(req, res){
-    console.log("Health OK")
-    res.send("Health OK");
- });
-
- app.get('/get/users/:id', function(req, res){
-    res.send('The id you specified is ' + req.params.id);
-    //console.log("Total Elements found : " + found.length);
- });
-
- app.post('/login',jsonParser, function(req, res){
-    console.log("Login method ");
-
-    let email_id = req.body.email_id;
-    let phone_no = req.body.phone_no;
-    let password = req.body.password;
-
-    userModel.find({$and: [
-        {
-            $or: [
-                { "email_id": email_id },
-                { "phone_no": phone_no }
-            ]
-        },
-        {
-            "password": password
-        }
-    ]}, (err, found) => {    
-        if (!err) {
-            if ( found.length == 1){
-                console.log("Successful user login");
-                res.status(200).send({"token" : "XXXX"});
-            }else if ( found.length == 0){
-                console.log("UserName / Password does not match")
-                res.status(401).send("UserName / Password does not match");
-            }
-            // this check condition is not needed 
-            // as unique constraint is made on email_id & phone_no
-            else{
-                console.log("Total users found : " + found.length);
-                console.log("Too many users with same phone no / email id")
-                res.status(404).send("Too many users with same phone no / email id");
-            }
-            
-        }else {
-            console.log("UserName / Password does not match");
-            res.status(500).send("Internal Server Error.")
-        }
-    }).clone().catch(err => console.log("Error occured, " + err));
-    
- });
-
- // create new users
- app.post('/signup', jsonParser, function(req, res){
-    body = req.body;
-    console.log(body);
-
-    var newUser = new userModel(body)
-    let id = null;
-    try{
-        newUser.save(function(err,doc) {
-            if (!err) {
-                id = doc._id;
-                console.log("Inserted ID : " + id);
-                res.status(200).send("Inserted Successfully : " + id);
-            }
-         });
-        
-    }catch(e){
-        console.error("Error occurred while making Insert " + e)
-        res.status(500).send("Internal Server Error");
-    }
- });
-
- // Convert a Guest to Host
- app.post('/users/toHost/:id', jsonParser, function(req, res){
-
-    let id = req.params.id;
-    console.log("Changing user : " + id + " to host");
-    let u = userModel.find({ _id: new bson.ObjectId('6307c23526ac686a5faa8dc1')});
-    //console.log(u);
-    try{
-        userModel.findOneAndUpdate({ _id: new bson.ObjectId('6307c23526ac686a5faa8dc1')}, {"is_host": true});
-        console.log("Successfully Changed to Host");
-        res.status(200).send("Successfully Changed to Host");
-    }catch(e){
-        console.error("Error occurred while making Insert " + e)
-        res.status(500).send("Internal Server Error");
-    }
- });
+ 
 
  // add bank details to add for host
  app.post('/host/addBankDetails', jsonParser, function (req, res){
@@ -194,12 +111,33 @@ app.get('/health', function(req, res){
     
  });
 
- // get a specific property details
+ // get a property specific general details
  app.get('/property/:property_id', jsonParser, function (req, res){
-    console.log("Get All Host properties");
+    console.log("Get Specific property details");
     let property_id = req.params.property_id;
     try{
         property.find({"_id" : new bson.ObjectId(property_id)}, (err, found) => {
+            console.log("Total Elements found : " + found.length);
+            if (!err) {
+                res.send(found);
+            }else {
+                console.log(err);
+                res.status(500).send("Internal Server Error Occurred.")
+            }
+        }).clone().catch(err => console.log("Error occured, " + err));
+    }catch(e){
+        console.error("Error occurred while making Insert " + e)
+        res.status(500).send("Internal Server Error");
+    }
+
+ });
+
+ // For Guest get booked property details
+ app.get('/property/booked/:property_id', jsonParser, function (req, res){
+    console.log("Get protected property details");
+    let property_id = req.params.property_id;
+    try{
+        property_access.find({"_id" : new bson.ObjectId(property_id)}, (err, found) => {
             console.log("Total Elements found : " + found.length);
             if (!err) {
                 res.send(found);
@@ -224,6 +162,8 @@ app.get('/health', function(req, res){
     var newReview = new reviews(body);
     let id = null;
     try{
+        // first need to check if the property has been used by the user in the near past 
+        // then only allow the user to add a review
         newReview.save(function(err,doc) {
             if (!err) {
                 id = doc._id;
@@ -267,20 +207,6 @@ app.get('/health', function(req, res){
     }
  });
 
- app.get('/get/users', function (req, res){
-    console.log("Inside get all users method");
-    
-    userModel.find({}, (err, found) => {
-        console.log("Total Elements found : " + found.length);
-        if (!err) {
-            res.send(found);
-        }else {
-            console.log(err);
-            res.status(500).send("Internal Server Error Occurred.")
-        }
-    }).clone().catch(err => console.log("Error occured, " + err));
- }); 
-
 create_connection();
 var conn = mongoose.connection;
 conn.on('connected', function() {
@@ -291,4 +217,6 @@ conn.on('disconnected',function(){
 })
 conn.on('error', console.error.bind(console, 'connection error:'));
 
+app.use(healthRouter, userRouter, adminRouter);
+//app.route('/admin', adminRouter);
 app.listen(3000);
