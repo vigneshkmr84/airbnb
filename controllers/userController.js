@@ -2,7 +2,7 @@ const bson = require('bson');
 
 var userModel = require('../model/users');
 
-const login=(req, res, next) => {
+const login=(req, res) => {
     console.log("Login method.");
 
     let email_id, phone_no, password ;
@@ -13,7 +13,7 @@ const login=(req, res, next) => {
         password = req.body.password;
     }catch(e){
         console.error("Exception occurred in reading login details : " + e);
-        res.status(400).send("Credentials missing");
+        res.status(400).send("Missing Credentials.");
     }
     
     userModel.find({$and: [
@@ -50,12 +50,12 @@ const login=(req, res, next) => {
     }).clone().catch(err => console.log("Error occured, " + err));
 }
 
-const signup=(req, res, next) => {
+const signup=(req, res) => {
     console.log("Inside user signup");
     body = req.body;
-    console.log(body);
+    //console.log(body);
 
-    var newUser = new userModel(body)
+    var newUser = new userModel(body);
     let id = null;
     try{
         newUser.save(function(err,doc) {
@@ -63,6 +63,9 @@ const signup=(req, res, next) => {
                 id = doc._id;
                 console.log("Inserted ID : " + id);
                 res.status(200).send("Inserted Successfully : " + id);
+            }else{
+            console.error("Error occurred in creating user : " + err);
+            res.status(500).send("Error occurred in creating user");
             }
          });
         
@@ -74,13 +77,15 @@ const signup=(req, res, next) => {
 
 
 // Convert a Guest to Host
-const changeUserToHost = (req, res, next) => { 
+const changeUserToHost = (req, res) => { 
 
     let id = req.params.id;
     console.log("Changing user : " + id + " to host");
+    let query = { _id: new bson.ObjectId(id) };
+    let updates = { "is_host": true };
 
     try{
-        userModel.findOneAndUpdate({ _id: new bson.ObjectId(id)}, {"is_host": true});
+        userModel.findOneAndUpdate(query, updates);
         console.log("Successfully Changed to Host");
         res.status(200).send("Successfully Changed to Host");
     }catch(e){
@@ -90,7 +95,7 @@ const changeUserToHost = (req, res, next) => {
  };
 
 // delete existing user
- const deleteUser = (req, res, next) => {
+ const deleteUser = (req, res) => {
     let id = req.params.id;
     console.log("Deleting user : " + id);
     try{
@@ -103,10 +108,10 @@ const changeUserToHost = (req, res, next) => {
     }
  };
 
- const getAllUsers = (req, res, next) => {
+ const getAllUsers = async (req, res) => {
     console.log("Get All users");
 
-    userModel.find({}, (err, found) => {
+    await userModel.find({}, (err, found) => {
         console.log("Total Elements found : " + found.length);
         if (!err) {
             res.send(found);
@@ -117,11 +122,32 @@ const changeUserToHost = (req, res, next) => {
     }).clone().catch(err => console.log("Error occured, " + err));
  };
 
- const getSpecificId = (req, res, next) => {
+ // get only user main information
+ // excluding payment details, favourites, password
+ const getUserById = async (req, res) => {
     let id = req.params.id
     console.log("Get User by specific Id : " + id);
+    let query = { _id: new bson.ObjectId(id) };
+    await userModel.find( query, (err, found) => {
+        console.log("Total Elements found : " + found.length);
+        if (!err) {
+            res.status(200).send(found);
+        }else {
+            console.log(err);
+            res.status(500).send("Internal Server Error Occurred.")
+        }
+    })
+    .select({ password: 0, bank_details: 0, favourites: 0})
+    .clone()
+    .catch(err => console.log("Error occured, " + err));
+ };
 
-    userModel.find({ _id: new bson.ObjectId(id)}, (err, found) => {
+ // get only payment details
+ const getUserPaymentDetails = async (req, res) => {
+    let user_id = req.params.id
+    console.log("Get User Payment Details : " + user_id);
+    let query = { _id: new bson.ObjectId( user_id) };
+    await userModel.find( query, (err, found) => {
         console.log("Total Elements found : " + found.length);
         if (!err) {
             res.send(found);
@@ -129,6 +155,148 @@ const changeUserToHost = (req, res, next) => {
             console.log(err);
             res.status(500).send("Internal Server Error Occurred.")
         }
-    }).clone().catch(err => console.log("Error occured, " + err));
+    })
+    .select({ payment_details: 1})
+    .clone();
  };
-module.exports={login, signup, changeUserToHost, deleteUser, getAllUsers, getSpecificId};
+
+ // add payment details to user by id
+ const addPaymentToUser = async (req, res) => {
+    let user_id = req.params.id
+    console.log("Add payment details to : " + user_id);
+    let payment_type = req.query.type;
+    let query = {_id: new bson.ObjectId(user_id)};
+    let options = { upsert: true, new: true};
+    let updateQuery = {};
+    if ( payment_type == "credit" || payment_type == "debit"){
+        updateQuery = { $push: { 'payment_details.credit_card' : req.body }};
+    }else if ( payment_type == "paypal") {
+        updateQuery = { $push: { 'payment_details.paypal' : req.body }};
+    }
+    
+    console.log(updateQuery);
+    try{
+        await userModel.updateOne(
+        query
+        , updateQuery
+        , options
+    ).exec();
+        res.status(200).send("Updated Successfully");
+    }catch(e){
+        console.log("Error occured during update " + e)
+        res.status(500).send("Error occurred during update.");
+    }
+ };
+
+
+ // remove a payment id from user
+ /* const removePaymentFromUser = async (req, res) => {
+    let user_id = req.params.id;
+    let payment_id = req.params.payment_id;
+
+    console.log("Removing payment id : " + payment_id + " from user : " + user_id);
+    
+    let payment_type = req.query.type;
+    let query = {_id: new bson.ObjectId(user_id)};
+    let options = { upsert: true, new: true};
+    let updateQuery = {};
+    if ( payment_type == "credit" || payment_type == "debit"){
+        updateQuery = { $push: { 'payment_details.credit_card' : req.body }};
+    }else if ( payment_type == "paypal") {
+        updateQuery = { $push: { 'payment_details.paypal' : req.body }};
+    }
+    
+    console.log(updateQuery);
+    try{
+        await userModel.updateOne(
+        query
+        , updateQuery
+        , options
+    ).exec();
+        res.status(200).send("Updated Successfully");
+    }catch(e){
+        console.log("Error occured during update " + e)
+        res.status(500).send("Error occurred during update.");
+    }
+ }; */
+
+ // Dynamically Update user details by id
+ const updateUserById = async (req, res) => {
+    let user_id = req.query.id;
+    let updateQuery = {};
+    let body = req.body;
+    let keys = Object.keys(body);
+    let values = Object.values(body);
+
+    console.log(keys);
+    console.log(values);
+    for ( let i =0; i< keys.length; i++)
+        updateQuery[keys[i]] = values[i];
+    
+    console.log(updateQuery);
+    await userModel.updateOne(
+        {_id: new bson.ObjectId(user_id)}
+        , { $set: updateQuery}   
+        , function (err , success) {
+            if (err) {
+                console.log("Error occurred during update : " + err);
+                res.status(500).send("Error occurred during update");
+            }else {
+                console.log("Updated successfully");
+                res.status(200).send("Updated Successfully");
+            }
+        }
+    ).clone();
+ };
+
+ // add property to favourites list
+ const addToFavourites = async (req, res) => {
+    let user_id = req.params.id;
+    let property_id = req.body.id;
+    console.log("Adding property id : " + property_id + " to favourites for user : " + user_id);
+    let query = { _id: new bson.ObjectId(user_id) };
+    let updates = { $push: { favourites : property_id }};
+
+    try{
+        await userModel.findOneAndUpdate(
+            query,
+            updates
+        ).clone();
+
+        console.log("Successfully added property to favourites");
+        res.status(200).send("Successfully added property to favourites");
+    }catch(e){
+        console.error("Error occurred while making Insert " + e)
+        res.status(500).send("Internal Server Error");
+    }
+ };
+
+ // remove property from favourites list
+ const removeFromFavourites = async (req, res) => {
+    let user_id = req.params.id;
+    let property_id = req.body.id;
+    console.log("Deleting property id : " + property_id + " to favourites for user : " + user_id);
+
+    try{
+        await userModel.updateOne(
+            { _id: new bson.ObjectId(user_id) },
+            { $pullAll: { favourites : [property_id] }},
+            function (error, success) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log("success");
+                }
+            }).clone();
+
+        console.log("Removed Successfully");
+        res.status(200).send("Removed Successfully");
+    }catch(e){
+        console.error("Error occurred while removing favourites " + e)
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+
+
+module.exports={login, signup, changeUserToHost, deleteUser, getAllUsers, getUserById, removeFromFavourites, addToFavourites, updateUserById, getUserPaymentDetails,addPaymentToUser};

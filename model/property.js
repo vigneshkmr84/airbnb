@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bson = require('bson')
 
 var property_amenities = new mongoose.Schema({
 
@@ -37,6 +36,8 @@ var property = new mongoose.Schema({
     checkout_time: {type: String, required: true},
     cancellation_policy: {type: String, required: true},
     host_is_superhost: {type: Boolean, required: false, default: false},
+    created_at : {type: Date, required: true, default: new Date()},
+    updated_at : {type: Date, required: true, default: new Date()},
     versionKey: false,
 });
 

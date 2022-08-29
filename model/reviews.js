@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bson = require('bson')
+var mongoosePaginate = require('mongoose-paginate');
 
 var reviews = new mongoose.Schema({
 
@@ -8,8 +8,10 @@ var reviews = new mongoose.Schema({
           property_id: {type: String, required: true},
           comments: {type: String, required: true},
           rating: {type: Number, required: true},
+          created_at : {type: Date, required: true, default: new Date()},
 });
 
+reviews.plugin(mongoosePaginate);
 // a guest can review a property only once
 reviews.index({property_id : 1, guest_id : 1}, { unique : true});
 
