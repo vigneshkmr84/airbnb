@@ -3,12 +3,27 @@ const bson = require('bson');
 var bookingModel = require('../model/bookings');
 var propertyModel = require('../model/property');
 
+// based on the query parameter ?past=true/false it fetches the history and future bookings
+// if nothing is passed all bookings are fetched
 const getBookings = async (req, res) => {
-    
+
     try{
+        let past = req.query.past;
+        let query = {};
+        console.log(past);
         let user_id = req.params.user_id;
         console.log("Get bookings for user : " + user_id);
-        let query = { user_id : new bson.ObjectId(user_id) };
+        if ( typeof past === 'undefined' ){
+            console.log("Fetching All bookings");
+            query = { user_id : new bson.ObjectId(user_id) };
+        }else if ( past === 'true'){
+            console.log("Fetching past bookings");
+            query = { user_id : new bson.ObjectId(user_id), start_date : {$lte : new Date().toISOString()  } };
+        }else if ( past === 'false'){
+            console.log("Fetching Future bookings");
+            query = { user_id : new bson.ObjectId(user_id), start_date : {$gte : new Date().toISOString() } };
+        }
+        console.log(query);
         let result = await bookingModel.find( query );
         console.log("Total fetched bookings : " + result.length);
         res.status(200).send(result);

@@ -16,6 +16,8 @@ var chatModel = mongoose.Schema({
 var bookingModel = mongoose.Schema({
     user_id : {type: String, required: true},
     property_id : {type: String, required: true},
+    // id that's used to pay for the booking
+    payment_details_id : {type: String, required: true}, 
 
     start_date : {type: Date, required: true},
     end_date : {type: Date, required: true},

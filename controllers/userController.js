@@ -3,13 +3,12 @@ const bson = require('bson');
 var userModel = require('../model/users');
 
 const login=(req, res) => {
-    console.log("Login method.");
+    console.log("Inside Login method.");
 
-    let email_id, phone_no, password ;
+    let password, user_name;
     // username can be both emailid / password
     try{
-        email_id = req.body.user_name ;
-        phone_no = req.body.user_name ;
+        user_name = req.body.user_name;
         password = req.body.password;
     }catch(e){
         console.error("Exception occurred in reading login details : " + e);
@@ -19,8 +18,8 @@ const login=(req, res) => {
     userModel.find({$and: [
         {
             $or: [
-                { "email_id": email_id },
-                { "phone_no": phone_no }
+                { "email_id": user_name },
+                { "phone_no": user_name }
             ]
         },
         {
@@ -53,7 +52,6 @@ const login=(req, res) => {
 const signup=(req, res) => {
     console.log("Inside user signup");
     body = req.body;
-    //console.log(body);
 
     var newUser = new userModel(body);
     let id = null;
@@ -108,6 +106,7 @@ const changeUserToHost = (req, res) => {
     }
  };
 
+ // get all users
  const getAllUsers = async (req, res) => {
     console.log("Get All users");
 
@@ -137,6 +136,7 @@ const changeUserToHost = (req, res) => {
             res.status(500).send("Internal Server Error Occurred.")
         }
     })
+    // do not show critical information in main page.
     .select({ password: 0, bank_details: 0, favourites: 0})
     .clone()
     .catch(err => console.log("Error occured, " + err));
@@ -156,6 +156,7 @@ const changeUserToHost = (req, res) => {
             res.status(500).send("Internal Server Error Occurred.")
         }
     })
+    // fetch only the payment details
     .select({ payment_details: 1})
     .clone();
  };
@@ -187,38 +188,6 @@ const changeUserToHost = (req, res) => {
         res.status(500).send("Error occurred during update.");
     }
  };
-
-
- // remove a payment id from user
- /* const removePaymentFromUser = async (req, res) => {
-    let user_id = req.params.id;
-    let payment_id = req.params.payment_id;
-
-    console.log("Removing payment id : " + payment_id + " from user : " + user_id);
-    
-    let payment_type = req.query.type;
-    let query = {_id: new bson.ObjectId(user_id)};
-    let options = { upsert: true, new: true};
-    let updateQuery = {};
-    if ( payment_type == "credit" || payment_type == "debit"){
-        updateQuery = { $push: { 'payment_details.credit_card' : req.body }};
-    }else if ( payment_type == "paypal") {
-        updateQuery = { $push: { 'payment_details.paypal' : req.body }};
-    }
-    
-    console.log(updateQuery);
-    try{
-        await userModel.updateOne(
-        query
-        , updateQuery
-        , options
-    ).exec();
-        res.status(200).send("Updated Successfully");
-    }catch(e){
-        console.log("Error occured during update " + e)
-        res.status(500).send("Error occurred during update.");
-    }
- }; */
 
  // Dynamically Update user details by id
  const updateUserById = async (req, res) => {
@@ -299,4 +268,4 @@ const changeUserToHost = (req, res) => {
 
 
 
-module.exports={login, signup, changeUserToHost, deleteUser, getAllUsers, getUserById, removeFromFavourites, addToFavourites, updateUserById, getUserPaymentDetails,addPaymentToUser};
+module.exports={login, signup, changeUserToHost, deleteUser, getAllUsers, getUserById, removeFromFavourites, addToFavourites, updateUserById, getUserPaymentDetails, addPaymentToUser};

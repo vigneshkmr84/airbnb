@@ -50,6 +50,7 @@ var userSchema = new mongoose.Schema({
     favourites: {type : Array, required: true},    // list of property id's
     bank_details: bankDetails,
     payment_details: paymentDetailsModel,
+    photo : {type : String, required: true},
 
     created_at : {type: Date, required: true, default: new Date()},
     updated_at : {type: Date, required: true, default: new Date()},
