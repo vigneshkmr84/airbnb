@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require("mongoose");
-//const bodyParser = require('body-parser')
 
 // routers
 const healthRouter = require('./routes/healthRouter');
@@ -13,12 +12,8 @@ const favouritesRouter = require('./routes/favouritesRouter');
 const bookingRouter = require('./routes/bookingRouter');
 
 
-// var hostBankDetails = require('./model/host_bank_details');
-// var guestCardDetails = require('./model/guest_card_details');
-
 
 var app = express();
-//var jsonParser = bodyParser.json()
 
 // Function to create database connection
 async function create_connection(){
@@ -33,62 +28,7 @@ async function create_connection(){
     }
 }
 
- 
-
- // add bank details to add for host
- /* app.post('/host/addBankDetails', jsonParser, function (req, res){
-    console.log("Inside Add Bank Details method");
-    let body = req.body;
-    console.log(body)
-    var bankDetails = new hostBankDetails(body);
-    let id = null;
-    try{
-        bankDetails.save(function(err,doc) {
-            if (!err) {
-                id = doc._id;
-                console.log("Successfully Inserted ID : " + id);
-                res.status(200).send("Successfully Inserted : " + id);
-            }else{
-                console.log(err);
-                res.status(500).send("Error occurred during insert.");
-            }
-         });
-        
-    }catch(e){
-        console.error("Error occurred while making Insert " + e);
-        res.status(500).send("Internal Server Error");
-    }
-    
- });
-  
- // Guest User add Cards
- app.post('/guest/addCard', jsonParser, function(req, res){
-
-    console.log("Inside Add Guest Card Details method");
-    let body = req.body;
-    console.log(body)
-    var newCard = new guestCardDetails(body);
-    let id = null;
-    try{
-        newCard.save(function(err,doc) {
-            if (!err) {
-                id = doc._id;
-                console.log("Successfully Inserted ID : " + id);
-                res.status(200).send("Successfully Inserted : " + id);
-            }else{
-                console.log(err);
-                res.status(500).send("Error occurred during insert.");
-            }
-         });
-
-    }catch(e){
-        console.error("Error occurred while making Insert " + e)
-        res.status(500).send("Internal Server Error");
-    }
- }); */
-
 console.log("Starting Airbnb Application");
-//process.env.TZ = 'America/Chicago';
 console.log("Current timezone : " + Intl.DateTimeFormat().resolvedOptions().timeZone);
 create_connection();
 var conn = mongoose.connection;
