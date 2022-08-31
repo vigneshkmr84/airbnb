@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// list of amenities categorized
 var property_amenities = new mongoose.Schema({
 
           category:  {type: String, required: true},
@@ -7,6 +8,16 @@ var property_amenities = new mongoose.Schema({
           _id : false,
 });
 
+// protected details that will be shared only for booked people
+var property_access = new mongoose.Schema({
+    house_code:  {type: String, required: true},
+    garage_code: {type: String, required: false},
+    other_details: {type: String, required: false},
+    wifi_password: {type: String, required: false},
+    wifi_name: {type: String, required: false},
+});
+
+// property address
 var property_address = new mongoose.Schema({
     street:  {type: String, required: true},
     houst_no: {type: String, required: true},
@@ -17,7 +28,7 @@ var property_address = new mongoose.Schema({
     _id : false,
 });
 
-// User Object
+// Property Object
 var property = new mongoose.Schema({
 
     host_id: {type: String, required: true},
@@ -32,12 +43,15 @@ var property = new mongoose.Schema({
     guests: {type: Number, required: true},
     bedroom: {type: Number, required: true},
     bathroom: {type: Number, required: true},
-    checkin_time: {type: String, required: true},
-    checkout_time: {type: String, required: true},
+    checkin_time: {type: Number, required: true},
+    checkout_time: {type: Number, required: true},
     cancellation_policy: {type: String, required: true},
     host_is_superhost: {type: Boolean, required: false, default: false},
+    protected_details : property_access,
+
     created_at : {type: Date, required: true, default: new Date()},
     updated_at : {type: Date, required: true, default: new Date()},
+
     versionKey: false,
 });
 
