@@ -47,7 +47,6 @@ const createBooking = async (req, res) => {
         // with the start date and end date of the booking 
         // will be easy to calculate when on exit
         let property = await propertyModel.findOne({_id : new bson.ObjectId(body.property_id)});
-        
         body.start_date = getDateWithTime(property.checkin_time, body.start_date);
         body.end_date = getDateWithTime(property.checkout_time, body.end_date);
         calculated_cost = calculateTotalCost(property, body.start_date, body.end_date);

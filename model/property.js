@@ -40,7 +40,7 @@ var property = new mongoose.Schema({
     cleaning_cost: {type: Number, required: true},
     service_cost: {type: Number, required: true},
 
-    amenities: [property_amenities],
+    amenities: {type: [property_amenities], required: true, default: []},
     address: property_address,
     avg_rating: {type: Number, required: true, default:0},
     guests: {type: Number, required: true},

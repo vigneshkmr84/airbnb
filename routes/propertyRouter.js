@@ -9,7 +9,4 @@ router.post('/property', jsonParser, propertyController.listAProperty);
 router.delete('/property/:id', jsonParser, propertyController.deleteProperty);
 router.get('/property', jsonParser, propertyController.getPropertyBasedOnQuery);
 
-// router.get('/property', jsonParser, propertyController.getListOfPropertiesByHostId);
-//router.get('/property', jsonParser, propertyController.getSpecificPropertyById);
-
 module.exports = router;
