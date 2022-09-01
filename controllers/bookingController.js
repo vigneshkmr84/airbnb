@@ -50,7 +50,12 @@ const createBooking = async (req, res) => {
         
         body.start_date = getDateWithTime(property.checkin_time, body.start_date);
         body.end_date = getDateWithTime(property.checkout_time, body.end_date);
+        calculated_cost = calculateTotalCost(property, body.start_date, body.end_date);
+        body.total_cost = calculated_cost[0];
+        body.taxes = calculated_cost[1];
+
         var newReservation = new bookingModel(body);
+
         await newReservation.save(function(err,doc) {
             if (!err) {
                 id = doc._id;
@@ -76,6 +81,17 @@ const getDateWithTime = (totalMinutes, newDate) =>{
     newDate = new Date(newDate);
     newDate.setHours(hours, minutes, 0);
     return newDate;
+}
+
+//const calculateTotalCost = (start_date, end_date, property_id) => {
+const calculateTotalCost = (property, start_date, end_date) => {
+    days_count = Math.ceil((end_date.getTime() - start_date.getTime())/(1000*3600*24));
+    total_cost = property.cost_per_day * days_count + property.service_cost + property.cleaning_cost;
+    // tax calculation logic = min of 150$ or 11% of the total cost 
+    taxes = Math.min(150, total_cost*0.11);
+    total_cost = total_cost+taxes;
+    console.log("Total Cost for " + days_count + " days : " + total_cost);
+    return [ total_cost, taxes];
 }
 
 // cancel existing booking

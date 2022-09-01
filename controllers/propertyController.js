@@ -58,19 +58,4 @@ const getPropertyBasedOnQuery = async (req, res) => {
     }).clone().catch(err => console.log("Error occured, " + err));
  };
 
- /* const getListOfPropertiesByHostId = async (req, res) =>{
-    let {host_id} = req.query;
-    console.log("Get Properties by Host-Id : " + host_id);
-
-    await propertyModel.find({ "host_id": new bson.ObjectId(host_id)}, (err, found) => {
-        console.log("Total Elements found : " + found.length);
-        if (!err) {
-            res.status(200).send(found);
-        }else {
-            console.log(err);
-            res.status(500).send("Internal Server Error Occurred.")
-        }
-    }).clone().catch(err => console.log("Error occured, " + err));
- } */
-
- module.exports={getPropertyBasedOnQuery, listAProperty, deleteProperty};
+ module.exports={getPropertyBasedOnQuery, listAProperty, deleteProperty,};
