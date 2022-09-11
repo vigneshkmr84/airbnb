@@ -37,8 +37,8 @@ var property = new mongoose.Schema({
     location: {type: String, required: true},
 
     cost_per_day: {type: Number, required: true},
-    cleaning_cost: {type: Number, required: true},
-    service_cost: {type: Number, required: true},
+    cleaning_cost: {type: Number, required: true, default: 0},
+    service_cost: {type: Number, required: true, default: 0},
 
     amenities: {type: [property_amenities], required: true, default: []},
     address: property_address,
@@ -51,10 +51,11 @@ var property = new mongoose.Schema({
     cancellation_policy: {type: String, required: true},
     host_is_superhost: {type: Boolean, required: false, default: false},
     protected_details : property_access,
-    house_rules: {type: Array, required: true},
+    house_rules: {type: Array, required: false},
 
     created_at : {type: Date, required: true, default: new Date()},
     updated_at : {type: Date, required: true, default: new Date()},
+    img: {type: String, required: false},
 
     versionKey: false,
 });
