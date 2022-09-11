@@ -4,29 +4,30 @@ var default_photo = "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAATlBMVEVHcEx
 
 var bankDetails = new mongoose.Schema({
 
-    bank_name: {type: String, required: true},
-    account_no: {type: Number, required: true},
-    swift_code: {type: String, required: true},
-    created_at : {type: Date, required: true, default: new Date()},
+    bank_name: { type: String, required: true },
+    account_no: { type: Number, required: true },
+    swift_code: { type: String, required: true },
+    created_at: { type: Date, required: true, default: new Date() },
     versionKey: false,
 });
 
 // credit / debit card details
 var cardDetailsModel = new mongoose.Schema({
 
-    guest_id: {type: String, required: true},
-    card_type: {type: String, enum: ['credit', 'debit'], required: true, lowercase: true},
-    card_no: {type: Number, required: true},
-    cvv: {type: Number, required: true},
-    expiry_date: {type: Date, required: true},
-    created_at : {type: Date, required: true, default: new Date()},
+    guest_id: { type: String, required: true },
+    nick_name: { type: String, required: true },
+    card_type: { type: String, enum: ['credit', 'debit', 'amex', 'discover', 'visa', 'mastercard'], required: true, lowercase: true },
+    card_no: { type: Number, required: true },
+    cvv: { type: Number, required: true },
+    expiry_date: { type: Date, required: true },
+    created_at: { type: Date, required: true, default: new Date() },
     versionKey: false,
 });
 
 
 var paypalModel = new mongoose.Schema({
-    account_name: {type: String, required: true},
-    created_at: {type: Date, required: true, default: new Date()},
+    account_name: { type: String, required: true },
+    created_at: { type: Date, required: true, default: new Date() },
 });
 
 var paymentDetailsModel = new mongoose.Schema({
@@ -38,32 +39,36 @@ var paymentDetailsModel = new mongoose.Schema({
 // User Object
 var userSchema = new mongoose.Schema({
 
-    first_name : {type: String, required: true},
-    last_name : {type: String, required: true},
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
     /* email_id : {type: String, required: true, unique :true, lowercase: true},
     phone_no : {type: String, required: true, unique: true}, */
-    
-    // one of email_id / phone_no should be present
-    email_id : {type: String, unique :true, lowercase: true, 
-        required: function() {
-            return !this.phone_no;
-    }},
-    phone_no : {type: String, unique: true,
-        required: function() {
-            return !this.email_id;
-    }},
-    profile_photo: {type: String, required: false, default: default_photo}, // will be converted to Buffer or other data types
 
-    password: {type: String, required: true},
-    is_host: {type: Boolean, required: true, default: false},
-    id_type: {type: String, enum: ['passport', 'driver license', 'state id card'], required: true, default: 'Passport', lowercase: true},
-    id_details: {type: String, required: true},
-    favourites: {type : Array, required: true, deafult: []},    // list of property id's
+    // one of email_id / phone_no should be present
+    email_id: {
+        type: String, unique: true, lowercase: true,
+        required: function () {
+            return !this.phone_no;
+        }
+    },
+    phone_no: {
+        type: String, unique: true,
+        required: function () {
+            return !this.email_id;
+        }
+    },
+    profile_photo: { type: String, required: false, default: default_photo }, // will be converted to Buffer or other data types
+
+    password: { type: String, required: true },
+    is_host: { type: Boolean, required: true, default: false },
+    id_type: { type: String, enum: ['passport', 'driver license', 'state id card'], required: true, default: 'Passport', lowercase: true },
+    id_details: { type: String, required: true },
+    favourites: { type: Array, required: true, deafult: [] },    // list of property id's
     bank_details: bankDetails,
     payment_details: paymentDetailsModel,
 
-    created_at : {type: Date, required: true, default: new Date()},
-    updated_at : {type: Date, required: true, default: new Date()},
+    created_at: { type: Date, required: true, default: new Date() },
+    updated_at: { type: Date, required: true, default: new Date() },
 });
 
 module.exports = mongoose.model('Users', userSchema, 'app_user');
