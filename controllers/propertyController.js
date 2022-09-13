@@ -56,16 +56,6 @@ const getPropertyBasedOnQuery = async (req, res) => {
     console.log("Query : " + JSON.stringify(query));
     console.log("Sort : " + JSON.stringify(sortingOrder))
 
-    /* await propertyModel.find(query, (err, found) => {
-        console.log("Total Elements found : " + found.length);
-        if (!err) {
-            res.status(200).send(found);
-        } else {
-            console.log(err);
-            res.status(500).send("Internal Server Error Occurred.")
-        }
-    }).clone().catch(err => console.log("Error occured, " + err)); */
-
     try {
         let propertiesList = await propertyModel.find(query)
             .sort(sortingOrder);
