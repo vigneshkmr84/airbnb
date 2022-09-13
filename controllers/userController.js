@@ -3,7 +3,6 @@ const crypto = require('crypto')
 
 var userModel = require('../model/users');
 var propertyModel = require('../model/property');
-const { table } = require('console');
 
 const payment_types_enum = ['credit', 'debit', 'amex', 'discover', 'visa', 'mastercard'];
 
