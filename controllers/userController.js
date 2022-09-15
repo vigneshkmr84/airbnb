@@ -1,8 +1,10 @@
 const bson = require('bson');
 const crypto = require('crypto')
 
+
 var userModel = require('../model/users');
 var propertyModel = require('../model/property');
+const jwtUtil = require('../utils/jwtGenerator');
 
 const payment_types_enum = ['credit', 'debit', 'amex', 'discover', 'visa', 'mastercard'];
 
@@ -35,10 +37,6 @@ const login = async (req, res) => {
         res.status(400).send(jsonResponse("Missing Credentials", 400));
     }
 
-    /* let t1 = { t1: 'abc', t2: 'cde' };
-    console.log(t1)
-    t1.token = 'xyz';
-    console.log(t1) */
     let query = {
         $and: [
             {
@@ -56,16 +54,13 @@ const login = async (req, res) => {
     let user = await userModel.findOne(query).select({ _id: 1, is_host: 1 });
 
     if (user === null || user === undefined) {
-        console.log("Invalid UserName / Password " + userName)
+        console.log("Invalid UserName / Password for : " + userName)
         res.status(401).send(jsonResponse("Invalid UserName / Password", 401));
     } else {
         // const user1 = Object.assign(user, { token :'xxxx' })
         console.log("Successfully logged on");
         // call function to generate JWT token
-        let tokenResponse = { token: 'xxx' }
-        tokenResponse.is_host = user.is_host
-        tokenResponse._id = user._id;
-        // console.log(tokenResponse)
+        let tokenResponse = jwtUtil.generateToken(user)
         return res.status(200).send(jsonResponse(tokenResponse, 200));
     }
 }
@@ -147,12 +142,15 @@ const getAllUsers = async (req, res) => {
 // get only user main information
 // excluding payment details, favourites, password
 const getUserById = async (req, res) => {
+    // await new Promise(resolve => setTimeout(resolve, 5000));
+
     let id = req.params.id
     console.log("Get User by specific Id : " + id);
     let query = { _id: new bson.ObjectId(id) };
     await userModel.findOne(query, (err, found) => {
-        console.log("Total Elements found : " + found.length);
+        console.log("Elements found : " + !(found === null || found === undefined));
         if (!err) {
+            // console.log(found);
             res.status(200).send(jsonResponse(found, 200));
         } else {
             console.log(err);
@@ -176,30 +174,43 @@ const getUserById = async (req, res) => {
 
 // get only payment details
 const getUserPaymentDetails = async (req, res) => {
-    let user_id = req.params.id
-    console.log("Get User Payment Details : " + user_id);
-    let query = { _id: new bson.ObjectId(user_id) };
-    await userModel.findOne(query, (err, found) => {
-        console.log("Elements found : " + (found === null ? false : true));
-        if (!err) {
-            if (found === null) {
-                res.status(200).send(jsonResponse({}, 200));
-            } else {
-                res.status(200).send(jsonResponse(found, 200));
-            }
-        } else {
-            console.log(err);
-            res.status(500).send(Internal_Server_Error)
-        }
-    })
-        // fetch only the payment details
-        .select({ payment_details: 1 })
-        .clone();
+    try {
+        let user_id = req.params.id
+        let nick_name = req.query.nick_name
+        console.log("Get User Payment Details for user id : " + user_id);
+        let query = { _id: new bson.ObjectId(user_id) };
+
+
+        // by default fetch only the nicknames 
+        // unless specified nick_name = false in query
+        let selectQuery = { payment_details: 1 }
+        console.log(nick_name)
+        // console.log(typeof(nick_name))
+        selectQuery = nick_name === 'true' ? {
+            'payment_details.credit_card.nick_name': 1
+            , 'payment_details.credit_card._id': 1
+            , 'payment_details.paypal.nick_name': 1
+            , 'payment_details.paypal._id': 1
+        } : selectQuery;
+
+        console.log("Select Query : " + JSON.stringify(selectQuery));
+
+        let details = await userModel.findOne(query)
+            .select(selectQuery)
+            .clone();
+        console.log("Successfully fetched payment details");
+        return res.send(jsonResponse(details, 200)).status(200);
+    } catch (e) {
+        console.error("Error occurred during data fetch : " + e)
+        return res.status(500).send(Internal_Server_Error);
+    }
+
 };
 
 // add payment details to user by id
 const addPaymentToUser = async (req, res) => {
     let user_id = req.params.id
+    console.log(req.body)
     console.log("Add payment details to : " + user_id);
     let payment_type = req.query.type;
     let query = { _id: new bson.ObjectId(user_id) };
@@ -222,6 +233,7 @@ const addPaymentToUser = async (req, res) => {
             , updateQuery
             , options
         ).exec();
+        console.log("Successfully updated");
         res.status(200).send(jsonResponse("Updated Successfully", 200));
     } catch (e) {
         console.log("Error occured during update " + e)
