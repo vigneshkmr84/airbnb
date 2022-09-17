@@ -3,7 +3,7 @@ var propertyModel = require('../model/property');
 var propertyImagesModel = require('../model/propertyImages');
 
 const jsonResponse = (response, status) => {
-    return JSON.stringify({ status: status, message: response });
+    return { status: status, message: response };
 }
 
 const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
@@ -51,6 +51,7 @@ const deleteProperty = async (req, res) => {
 // query can contain _id / host_id 
 const getPropertyBasedOnQuery = async (req, res) => {
     //let id = req.params.id
+    console.log("Inside get property based on query parameters");
     let query = req.query
     let sortingOrder = { created_at: -1, avg_rating: -1 }
     console.log("Query : " + JSON.stringify(query));

@@ -1,7 +1,7 @@
 var reviewsModel = require('../model/reviews');
 
 const jsonResponse = (response, status) => {
-    return JSON.stringify({ status: status, message: response });
+    return { status: status, message: response };
 }
 
 const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
@@ -35,7 +35,7 @@ const create = (req, res, next) => {
 // get the list of reviews written sorted by date desc order
 // with pagination support
 const getReview = async (req, res) => {
-    
+    // await new Promise(resolve => setTimeout(resolve, 5000));
     console.log("Inside Get Reviews");
     try {
         const { property_id, host_id, page_no, page_size } = req.query

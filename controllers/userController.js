@@ -8,8 +8,16 @@ const jwtUtil = require('../utils/jwtGenerator');
 
 const payment_types_enum = ['credit', 'debit', 'amex', 'discover', 'visa', 'mastercard'];
 
-const jsonResponse = (response, status) => {
+// this only prints the String of JSON
+// Content-Type: text/html
+/* const jsonResponse = (response, status) => {
     return JSON.stringify({ status: status, message: response });
+} */
+
+// this prints the JSON Object
+// Content-Type: application/json; UTF-8
+const jsonResponse = (response, status) => {
+    return { status: status, message: response };
 }
 
 const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
@@ -143,7 +151,9 @@ const getAllUsers = async (req, res) => {
 // excluding payment details, favourites, password
 const getUserById = async (req, res) => {
     // await new Promise(resolve => setTimeout(resolve, 5000));
-
+    console.log(req.userId);
+    console.log(req.is_host);
+    
     let id = req.params.id
     console.log("Get User by specific Id : " + id);
     let query = { _id: new bson.ObjectId(id) };
@@ -184,7 +194,7 @@ const getUserPaymentDetails = async (req, res) => {
         // by default fetch only the nicknames 
         // unless specified nick_name = false in query
         let selectQuery = { payment_details: 1 }
-        console.log(nick_name)
+        nick_name !== undefined ? console.log(nick_name) : '';
         // console.log(typeof(nick_name))
         selectQuery = nick_name === 'true' ? {
             'payment_details.credit_card.nick_name': 1
