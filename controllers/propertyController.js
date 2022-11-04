@@ -13,23 +13,24 @@ const listAProperty = async (req, res) => {
     console.log("Inside Creating a new property.");
 
     let body = req.body;
+    console.log(body);
     var newProperty = new propertyModel(body);
     let id = null;
     try {
         await newProperty.save(function (err, doc) {
             if (!err) {
                 id = doc._id;
-                console.log("Successfully Inserted ID : " + id);
-                res.status(200).send("Successfully Inserted : " + id);
+                console.log("Successfully Inserted Property Id : " + id);
+                res.status(200).send(jsonResponse("Successfully Inserted : " + id));
             } else {
                 console.log(err);
-                res.status(500).send("Error occurred during insert.");
+                res.status(500).send(Internal_Server_Error);
             }
         });
 
     } catch (e) {
         console.error("Error occurred while making Insert " + e)
-        res.status(500).send("Internal Server Error");
+        res.status(500).send(Internal_Server_Error);
     }
 };
 
@@ -43,7 +44,7 @@ const deleteProperty = async (req, res) => {
         res.status(200).send("Deleted Successfully.");
     } catch (e) {
         console.log("Error occurred during deleting property " + e);
-        res.status(500).send("Internal Server Error.");
+        res.status(500).send(Internal_Server_Error);
     }
 
 };
@@ -69,12 +70,19 @@ const getPropertyBasedOnQuery = async (req, res) => {
 };
 
 
-// Search Query yet to complete
-const searchQuery = async (req, res) => {
-
+// Search Query
+const searchProperty = async (req, res) => {
+    console.log('Inside Search...');
+    let inputQuery = req.params.query;
+    console.log('Input Query : ' + inputQuery);
+    let searchQuery = { $or: [{ 'location': new RegExp(inputQuery, "i") }, { 'name': new RegExp(inputQuery, "i") }] };
+    console.log('Search Query ' + JSON.stringify(searchQuery));
     try {
-        res.status(200)
+        let searchResults = await propertyModel.find(searchQuery);
+        console.log('Total Matching Results :' + searchResults.length)
+        res.status(200).send(jsonResponse(searchResults, 200));
     } catch (e) {
+        console.log('Internal Server Error occurred : ' + e);
         res.status(500).send(Internal_Server_Error);
     }
 }
@@ -96,4 +104,4 @@ const getPropertyImages = async (req, res) => {
 
 
 }
-module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery, getPropertyImages };
+module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages };

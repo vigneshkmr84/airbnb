@@ -33,6 +33,10 @@ var property = new mongoose.Schema({
 
     host_id: {type: String, required: true},
     name: {type: String, required: true},
+    // a beautiful pent house  or a fantastic lake view house
+    one_line_description: {type: String, required: true, default : 'A beautiful property'},
+    // villa, pool house, pent house, beach facing, 
+    house_type: {type: String, required: true},
     description: {type: String, required: true},
     location: {type: String, required: true},
 
@@ -41,6 +45,7 @@ var property = new mongoose.Schema({
     service_cost: {type: Number, required: true, default: 0},
 
     amenities: {type: [property_amenities], required: true, default: []},
+
     address: property_address,
     avg_rating: {type: Number, required: true, default:0},
     guests: {type: Number, required: true},
@@ -49,9 +54,11 @@ var property = new mongoose.Schema({
     checkin_time: {type: Number, required: true},
     checkout_time: {type: Number, required: true},
     cancellation_policy: {type: String, required: true},
-    host_is_superhost: {type: Boolean, required: false, default: false},
+    // host_is_superhost: {type: Boolean, required: false, default: false},
     protected_details : property_access,
     house_rules: {type: Array, required: false},
+
+    nearby_attraction: {type: Array, required: false},
 
     created_at : {type: Date, required: true, default: new Date()},
     updated_at : {type: Date, required: true, default: new Date()},

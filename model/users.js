@@ -29,6 +29,7 @@ var cardDetailsModel = new mongoose.Schema({
 
 var paypalModel = new mongoose.Schema({
     account_name: { type: String, required: true },
+    account_name: { type: String, required: true },
     created_at: { type: Date, required: true, default: new Date() },
 });
 
@@ -40,7 +41,7 @@ var paymentDetailsModel = new mongoose.Schema({
 var hostDetailsModel = new mongoose.Schema({
     languages: { type: Array, required: true, default: ['English'] },
     description: { type: String, required: true },
-    is_superhost: { type: Boolean, required: true, default: false },
+    // is_superhost: { type: Boolean, required: true, default: false },
 })
 // User Object
 var userSchema = new mongoose.Schema({

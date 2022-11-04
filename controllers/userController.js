@@ -153,7 +153,7 @@ const getUserById = async (req, res) => {
     // await new Promise(resolve => setTimeout(resolve, 5000));
     console.log(req.userId);
     console.log(req.is_host);
-    
+
     let id = req.params.id
     console.log("Get User by specific Id : " + id);
     let query = { _id: new bson.ObjectId(id) };
@@ -315,9 +315,10 @@ const getFavouritesByUserId = async (req, res) => {
         favourites_list.forEach(property_id => {
             object_id_list.push(new bson.ObjectId(property_id));
         })
+        // console.log(object_id_list);
 
-        //console.log(object_id_list)
         var newQuery = { _id: { $in: object_id_list } }
+        console.log(newQuery);
         property_list = await propertyModel.find(newQuery);
 
         console.log(property_list.length)

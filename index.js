@@ -12,6 +12,7 @@ const reviewRouter = require('./routes/reviewRouter');
 const propertyRouter = require('./routes/propertyRouter');
 const favouritesRouter = require('./routes/favouritesRouter');
 const bookingRouter = require('./routes/bookingRouter');
+const searchRouter = require('./routes/searchRouter');
 
 
 
@@ -44,5 +45,5 @@ conn.on('disconnected', function () {
 conn.on('error', console.error.bind(console, 'connection error:'));
 
 app.use(cors());
-app.use(healthRouter, userRouter, adminRouter, reviewRouter, propertyRouter, favouritesRouter, bookingRouter);
+app.use(healthRouter, userRouter, adminRouter, reviewRouter, propertyRouter, favouritesRouter, bookingRouter, searchRouter);
 app.listen(3000);

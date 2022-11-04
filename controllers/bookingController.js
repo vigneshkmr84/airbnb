@@ -96,16 +96,14 @@ const getDateWithTime = (totalMinutes, newDate) => {
 
 //const calculateTotalCost = (start_date, end_date, property_id) => {
 const calculateTotalCost = (property, start_date, end_date) => {
-    /* console.log(start_date)
-    console.log(end_date) */
+
     start_date = new Date(start_date)
     end_date = new Date(end_date)
-    /* console.log(start_date)
-    console.log(end_date) */
+
     days_count = Math.ceil((end_date.getTime() - start_date.getTime()) / (1000 * 3600 * 24));
     console.log(days_count)
     total_cost = property.cost_per_day * days_count + property.service_cost + property.cleaning_cost;
-    // tax calculation logic = min of 150$ or 11% of the total cost 
+    // tax calculation logic = min of 150$ or 5% of the total cost 
     taxes = Math.min(150, total_cost * 0.05);
     total_cost = total_cost + taxes;
     console.log("Total Cost for " + days_count + " days : " + total_cost);
