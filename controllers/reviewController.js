@@ -1,4 +1,5 @@
 var reviewsModel = require('../model/reviews');
+const { getUserById, getUser } = require('./userController');
 
 const jsonResponse = (response, status) => {
     return { status: status, message: response };
@@ -6,9 +7,13 @@ const jsonResponse = (response, status) => {
 
 const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
 
-const create = (req, res, next) => {
+const createReview = async (req, res, next) => {
     console.log("Inside Add a review API");
     let body = req.body;
+    let user_details = await getUser(body.guest_id);
+
+    body['user_name'] = user_details.first_name + " " + user_details.last_name;
+    console.log('body')
     console.log(body)
     var newReview = new reviewsModel(body);
     let id = null;
@@ -70,4 +75,4 @@ const getReview = async (req, res) => {
     }
 }
 
-module.exports = { create, getReview };
+module.exports = { create: createReview, getReview };

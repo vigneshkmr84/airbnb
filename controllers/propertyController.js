@@ -92,12 +92,11 @@ const getPropertyImages = async (req, res) => {
     try {
         let property_id = req.params.id;
         console.log('Get All images for Property id : ' + property_id);
-        let property_images = await propertyImagesModel.findOne({ _id: new bson.ObjectId(property_id) });
+        let property_images = await propertyImagesModel.findOne({ property_id: new bson.ObjectId(property_id) });
         console.log(property_images.images.length)
-        console.log("got")
         res.status(200).send(jsonResponse(property_images, 200));
     } catch (e) {
-        console.log('Error occurred during fetching images');
+        console.log('Error occurred during fetching images : ', e);
         res.status(500).send(Internal_Server_Error)
     }
 

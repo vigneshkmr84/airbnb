@@ -156,8 +156,8 @@ const getUserById = async (req, res) => {
 
     let id = req.params.id
     console.log("Get User by specific Id : " + id);
-    let query = { _id: new bson.ObjectId(id) };
-    await userModel.findOne(query, (err, found) => {
+    // let query = { _id: new bson.ObjectId(id) };
+    /* await userModel.findOne(query, (err, found) => {
         console.log("Elements found : " + !(found === null || found === undefined));
         if (!err) {
             // console.log(found);
@@ -170,18 +170,39 @@ const getUserById = async (req, res) => {
         // do not show critical information in main page.
         .select({ password: 0, bank_details: 0, favourites: 0 })
         .clone()
-        .catch(err => console.log("Error occured, " + err));
-    /* try{
-        let user = await userModel.findOne(query)
-        .select({password: 0, bank_details: 0, favourites: 0});
-        console.log(user);
-        return res.status(200, jsonResponse(user, 200));
-    }catch(e){
-        console.log("Error occurred during fetch of user : " + id);
-        return res.status(500, Internal_Server_Error);
-    } */
+        .catch(err => console.log("Error occured, " + err)); */
+    const user_details = await getUser(id);
+    if (user_details != null) {
+        return res.status(200).send(jsonResponse(user_details, 200));
+    } else {
+        return res.status(500).send(Internal_Server_Error);
+    }
 };
 
+
+async function getUser(user_id) {
+    console.log('Fetching user ', user_id)
+    let query = { _id: new bson.ObjectId(user_id) }
+    console.log(query)
+    let user = await userModel.findById(new bson.ObjectId(user_id), (err, docs) => {
+        console.log('fetched')
+        if (err) {
+            console.log(err)
+            return null;
+        } else {
+            console.log(docs);
+            return docs
+        }
+
+    })
+        .select({ password: 0, bank_details: 0, favourites: 0 })
+        .clone()
+        .catch(function (err) { console.log(err) });
+
+    return user
+
+
+}
 // get only payment details
 const getUserPaymentDetails = async (req, res) => {
     try {
@@ -380,4 +401,4 @@ const removeFromFavourites = async (req, res) => {
 
 
 
-module.exports = { login, signup, changeUserToHost, deleteUser, getAllUsers, getUserById, removeFromFavourites, addToFavourites, updateUserById, getUserPaymentDetails, addPaymentToUser, getFavouritesByUserId };
+module.exports = { login, signup, changeUserToHost, deleteUser, getAllUsers, getUserById, removeFromFavourites, addToFavourites, updateUserById, getUserPaymentDetails, addPaymentToUser, getFavouritesByUserId, getUser };
