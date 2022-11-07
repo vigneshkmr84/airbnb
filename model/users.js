@@ -29,7 +29,7 @@ var cardDetailsModel = new mongoose.Schema({
 
 var paypalModel = new mongoose.Schema({
     account_name: { type: String, required: true },
-    account_name: { type: String, required: true },
+    nick_name: { type: String, required: true },
     created_at: { type: Date, required: true, default: new Date() },
 });
 

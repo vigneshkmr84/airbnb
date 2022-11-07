@@ -8,7 +8,9 @@ var images = new mongoose.Schema({
 var property_images = new mongoose.Schema({
 
     property_id: { type: String, required: true },
-    images: [images],
+    // images: [images],
+    image: { type: String, required: true },
+    added_on: { type: Date, required: true, default: new Date() },
 });
 
 module.exports = mongoose.model('PropertyImages', property_images, 'property_images');

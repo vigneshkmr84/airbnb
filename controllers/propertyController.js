@@ -13,7 +13,7 @@ const listAProperty = async (req, res) => {
     console.log("Inside Creating a new property.");
 
     let body = req.body;
-    console.log(body);
+    // console.log(body);
     var newProperty = new propertyModel(body);
     let id = null;
     try {
@@ -21,7 +21,7 @@ const listAProperty = async (req, res) => {
             if (!err) {
                 id = doc._id;
                 console.log("Successfully Inserted Property Id : " + id);
-                res.status(200).send(jsonResponse("Successfully Inserted : " + id));
+                res.status(200).send(jsonResponse(id));
             } else {
                 console.log(err);
                 res.status(500).send(Internal_Server_Error);
@@ -92,15 +92,41 @@ const getPropertyImages = async (req, res) => {
     try {
         let property_id = req.params.id;
         console.log('Get All images for Property id : ' + property_id);
-        let property_images = await propertyImagesModel.findOne({ property_id: new bson.ObjectId(property_id) });
-        console.log(property_images.images.length)
+        let property_images = await propertyImagesModel.find({ property_id: new bson.ObjectId(property_id) });
+        console.log(property_images.length)
         res.status(200).send(jsonResponse(property_images, 200));
     } catch (e) {
         console.log('Error occurred during fetching images : ', e);
         res.status(500).send(Internal_Server_Error)
     }
-
-
-
 }
-module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages };
+
+const postPropertyImages = async (req, res) => {
+    try {
+        let property_id = req.params.id;
+        console.log('Adding images for Property : ' + property_id);
+        let imagesList = req.body;
+        let imageObject = getPropertyImagesObject(imagesList, property_id)
+        await propertyImagesModel.insertMany(imageObject, (err, docs) => {
+            if (err) {
+                console.log('Error occurred during adding images : ', e);
+                res.status(500).send(Internal_Server_Error)
+            } else {
+                console.log('Successfully inserted images');
+                res.status(200).send(jsonResponse('Successfully inserted images', 200))
+            }
+
+        })
+    } catch (e) {
+        console.log('Error occurred during fetching images : ', e);
+        res.status(500).send(Internal_Server_Error)
+    }
+}
+
+function getPropertyImagesObject(imagesList, _id) {
+
+    imagesList?.forEach(e => { e.property_id = _id });
+    // console.log(imagesList)
+    return imagesList;
+}
+module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages };

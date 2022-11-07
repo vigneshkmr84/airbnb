@@ -182,15 +182,12 @@ const getUserById = async (req, res) => {
 
 async function getUser(user_id) {
     console.log('Fetching user ', user_id)
-    let query = { _id: new bson.ObjectId(user_id) }
-    console.log(query)
     let user = await userModel.findById(new bson.ObjectId(user_id), (err, docs) => {
         console.log('fetched')
         if (err) {
             console.log(err)
             return null;
         } else {
-            console.log(docs);
             return docs
         }
 

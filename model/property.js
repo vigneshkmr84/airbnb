@@ -39,6 +39,8 @@ var property = new mongoose.Schema({
     house_type: {type: String, required: true},
     description: {type: String, required: true},
     location: {type: String, required: true},
+    latitude: {type: Number, required: true},
+    longitude: {type: Number, required: true},
 
     cost_per_day: {type: Number, required: true},
     cleaning_cost: {type: Number, required: true, default: 0},

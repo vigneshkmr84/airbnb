@@ -16,7 +16,9 @@ router.get('/search', jsonParser, propertyController.searchQuery); */
 router.post('/property', jsonParser, authenticateToken, propertyController.listAProperty);
 router.delete('/property/:id', jsonParser, authenticateToken, propertyController.deleteProperty);
 router.get('/property', jsonParser, authenticateToken, propertyController.getPropertyBasedOnQuery);
+
 router.get('/property/:id/images', authenticateToken, jsonParser, propertyController.getPropertyImages);
+router.post('/property/:id/images', authenticateToken, jsonParser, propertyController.postPropertyImages);
 
 router.get('/search', jsonParser, authenticateToken, propertyController.searchQuery);
 
