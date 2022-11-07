@@ -20,6 +20,6 @@ router.get('/property', jsonParser, authenticateToken, propertyController.getPro
 router.get('/property/:id/images', authenticateToken, jsonParser, propertyController.getPropertyImages);
 router.post('/property/:id/images', authenticateToken, jsonParser, propertyController.postPropertyImages);
 
-router.get('/search', jsonParser, authenticateToken, propertyController.searchQuery);
+// router.get('/search', jsonParser, authenticateToken, propertyController.searchQuery);
 
 module.exports = router;

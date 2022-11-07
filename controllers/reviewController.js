@@ -1,5 +1,5 @@
 var reviewsModel = require('../model/reviews');
-const { getUserById, getUser } = require('./userController');
+const { getUser } = require('./userController');
 
 const jsonResponse = (response, status) => {
     return { status: status, message: response };
