@@ -2,6 +2,7 @@ const bson = require('bson');
 
 var bookingModel = require('../model/bookings');
 var propertyModel = require('../model/property');
+const { findPropertyById } = require('./propertyController');
 
 const jsonResponse = (response, status) => {
     return { status: status, message: response };
@@ -18,27 +19,38 @@ const getBookings = async (req, res) => {
         let past = req.query.past;
         let query = {};
         console.log(past);
-        let user_id = req.params.user_id;
+        let user_id = req.params.id;
         console.log("Get bookings for user : " + user_id);
         if (typeof past === 'undefined') {
             console.log("Fetching All bookings");
-            query = { user_id: new bson.ObjectId(user_id) };
+            query = { user_id: user_id };
         } else if (past === 'true') {
             console.log("Fetching past bookings");
-            query = { user_id: new bson.ObjectId(user_id), start_date: { $lte: new Date().toISOString() } };
+            query = { user_id: user_id, start_date: { $lte: new Date().toISOString() } };
         } else if (past === 'false') {
             console.log("Fetching Future bookings");
-            query = { user_id: new bson.ObjectId(user_id), start_date: { $gte: new Date().toISOString() } };
+            query = { user_id: user_id, start_date: { $gte: new Date().toISOString() } };
         }
         console.log(query);
-        let result = await bookingModel.find(query);
-        console.log("Total fetched bookings : " + result.length);
-        res.status(200).send(jsonResponse(result, 200));
+        let allBookingDetails = await bookingModel.find(query);
+
+        var updatedBooking = [];
+         await Promise.all(allBookingDetails.map(async function (b) {
+            let p = await findPropertyById(b.property_id)
+            let t = { ...b._doc, property_details: p }
+            updatedBooking.push(t)
+            return t
+        }))
+
+        // console.log(updatedBooking)
+        console.log("Total fetched bookings : " + updatedBooking.length);
+        res.status(200).send(jsonResponse(updatedBooking, 200));
     } catch (e) {
         console.log("Error occurred during fetch : " + e);
         res.status(500).send(Internal_Server_Error);
     }
 };
+
 
 async function getAllActiveBookingsForProperty(_id) {
     let bookings = await bookingModel.find({ property_id: _id }, (err, docs) => {

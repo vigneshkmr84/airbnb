@@ -26,7 +26,7 @@ var bookingModel = mongoose.Schema({
     taxes : {type: Number, required: true},
     no_of_people : {type: Number, required: true},
     message_to_host : {type: String, required: false},
-    guests: {type: [guest_list], required: true, default: []},
+    // guests: {type: [guest_list], required: true, default: []},
     
     created_at : {type: Date, required: true, default: new Date()},
 });

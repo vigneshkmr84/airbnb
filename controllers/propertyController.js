@@ -70,6 +70,10 @@ const getPropertyBasedOnQuery = async (req, res) => {
 };
 
 
+const findPropertyById = async (_id) => {
+    return await propertyModel.findById(new bson.ObjectId(_id));
+}
+
 // Search Query
 const searchProperty = async (req, res) => {
     console.log('Inside Search...');
@@ -129,4 +133,4 @@ function getPropertyImagesObject(imagesList, _id) {
     // console.log(imagesList)
     return imagesList;
 }
-module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages };
+module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages, findPropertyById };

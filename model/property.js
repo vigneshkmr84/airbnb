@@ -60,8 +60,6 @@ var property = new mongoose.Schema({
     protected_details : property_access,
     house_rules: {type: Array, required: false},
 
-    nearby_attraction: {type: Array, required: false},
-
     created_at : {type: Date, required: true, default: new Date()},
     updated_at : {type: Date, required: true, default: new Date()},
     img: {type: String, required: false},
