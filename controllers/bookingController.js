@@ -35,7 +35,7 @@ const getBookings = async (req, res) => {
         let allBookingDetails = await bookingModel.find(query);
 
         var updatedBooking = [];
-         await Promise.all(allBookingDetails.map(async function (b) {
+        await Promise.all(allBookingDetails.map(async function (b) {
             let p = await findPropertyById(b.property_id)
             let t = { ...b._doc, property_details: p }
             updatedBooking.push(t)
@@ -102,7 +102,7 @@ async function validateBooking(property_id, new_start_date, new_end_date) {
 const createBooking = async (req, res) => {
     console.log("Reserve a booking");
     let body = req.body;
-    console.log(body)
+    // console.log(body)
     try {
         // need to check for existing reservation 
         // for the property within the given time frame
@@ -122,27 +122,28 @@ const createBooking = async (req, res) => {
         calculated_cost = calculateTotalCost(property, body.start_date, body.end_date);
         body.total_cost = calculated_cost[0];
         body.taxes = calculated_cost[1];
-        body.user_id = req.user_id;
+        body.user_id = body.user_id;
         body.no_of_people = Number(body.no_of_people)
-
+        console.log(1)
         if (await validateBooking(body.property_id, body.start_date, body.end_date) === false) {
             console.log('Property Already booked');
             res.status(500).send(jsonResponse("Dates already taken", 500));
         }
         else {
-
+            console.log(2)
             var newReservation = new bookingModel(body);
-
+            console.log(newReservation)
             newReservation.save((err, doc) => {
                 if (!err) {
                     id = doc._id;
                     console.log("Booking ID : " + id);
                     res.status(200).send(jsonResponse("Booked Successfully : " + id, 200));
                 } else {
-                    console.error("Error occurred in reservation : " + err);
+                    console.error("Error occurred in reservation : ", err);
                     res.status(500).send(jsonResponse("Unable to Reserve", 500));
                 }
-            }).clone();
+            })
+            //.clone();
         }
 
     } catch (e) {
@@ -168,7 +169,6 @@ const calculateTotalCost = (property, start_date, end_date) => {
     end_date = new Date(end_date)
 
     days_count = Math.ceil((end_date.getTime() - start_date.getTime()) / (1000 * 3600 * 24));
-    console.log(days_count)
     total_cost = property.cost_per_day * days_count + property.service_cost + property.cleaning_cost;
     // tax calculation logic = min of 150$ or 5% of the total cost 
     taxes = Math.min(150, total_cost * 0.05);
@@ -224,4 +224,24 @@ const isValidCancelation = (start_date) => {
     return false;
 }
 
-module.exports = { getBookings, createBooking, cancelBooking };
+const getBookingById = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let query = { _id: new bson.ObjectId(id) };
+
+        console.log(query);
+        let booking_details = await bookingModel.findOne(query);
+
+        var updatedBooking = [];
+
+        let p = await findPropertyById(booking_details.property_id)
+        let t = { ...booking_details._doc, property_details: p }
+        updatedBooking.push(t)
+
+        res.status(200).send(jsonResponse(updatedBooking, 200));
+    } catch (e) {
+        console.log("Error occurred during fetch : " + e);
+        res.status(500).send(Internal_Server_Error);
+    }
+}
+module.exports = { getBookings, createBooking, cancelBooking, getBookingById };
