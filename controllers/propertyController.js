@@ -21,7 +21,7 @@ const listAProperty = async (req, res) => {
             if (!err) {
                 id = doc._id;
                 console.log("Successfully Inserted Property Id : " + id);
-                res.status(200).send(jsonResponse(id));
+                res.status(200).send(jsonResponse(id, 200));
             } else {
                 console.log(err);
                 res.status(500).send(Internal_Server_Error);
@@ -41,7 +41,7 @@ const deleteProperty = async (req, res) => {
         console.log("Deleting property by id : " + id);
         await propertyModel.deleteOne({ _id: id });
         console.log("Deleted Successfully.");
-        res.status(200).send("Deleted Successfully.");
+        res.status(200).send(jsonResponse("Deleted Successfully", 200));
     } catch (e) {
         console.log("Error occurred during deleting property " + e);
         res.status(500).send(Internal_Server_Error);
