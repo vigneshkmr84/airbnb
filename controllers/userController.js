@@ -4,6 +4,7 @@ const crypto = require('crypto')
 
 var userModel = require('../model/users');
 var propertyModel = require('../model/property');
+var favouritesModel = require('../model/favourites');
 const jwtUtil = require('../utils/jwtGenerator');
 
 const payment_types_enum = ['credit', 'debit', 'amex', 'discover', 'visa', 'mastercard'];
@@ -33,7 +34,7 @@ const login = async (req, res) => {
 
     try {
         userName = req.body.userName;
-        console.log(userName);
+        console.log('Username : ', userName);
 
         if (userName === "" || password === "") {
             console.error("Empty Credentials.");
@@ -82,11 +83,20 @@ const signup = (req, res) => {
 
     let id = null;
     try {
-        newUser.save(function (err, doc) {
+        newUser.save((err, doc) => {
             if (!err) {
                 id = doc._id;
                 console.log("New Inserted ID : " + id);
-                res.status(200).send(jsonResponse("Successfully created", 200));
+                emptyFavourites = new favouritesModel({ user_id: id, favourites: [] })
+                emptyFavourites.save((ferr, fdoc) => {
+                    if (!ferr) {
+                        res.status(200).send(jsonResponse("Successfully created", 200));
+                    } else {
+                        console.error("Error occurred in creating user : " + ferr);
+                        res.status(500).send(jsonResponse("Error occurred in creating user", 500));
+                    }
+                })
+
             } else {
                 console.error("Error occurred in creating user : " + err);
                 res.status(500).send(jsonResponse("Error occurred in creating user", 500));
