@@ -111,7 +111,7 @@ const signup = (req, res) => {
 
 
 // Convert a Guest to Host
-const changeUserToHost = (req, res) => {
+const changeUserToHost = async (req, res) => {
 
     let id = req.params.id;
     console.log("Changing user : " + id + " to host");
@@ -119,7 +119,7 @@ const changeUserToHost = (req, res) => {
     let updates = { "is_host": true };
 
     try {
-        userModel.findOneAndUpdate(query, updates);
+        await userModel.findOneAndUpdate(query, updates);
         console.log("Successfully Changed to Host");
         res.status(200).send(jsonResponse("Successfully Changed to Host", 200));
     } catch (e) {

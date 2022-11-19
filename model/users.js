@@ -70,9 +70,11 @@ var userSchema = new mongoose.Schema({
     is_host: { type: Boolean, required: true, default: false },
     id_type: { type: String, enum: ['passport', 'driver license', 'state id card'], required: true, default: 'Passport', lowercase: true },
     id_details: { type: String, required: true },
-    favourites: { type: Array, required: true, deafult: [] },    // list of property id's
+    // favourites: { type: Array, required: true, deafult: [] },    // list of property id's
     // host_is_superhost: { type: Boolean, required: false, default: false },
-    host_details: { type: hostDetailsModel },
+    // host_details: { type: hostDetailsModel },
+    description: { type: String, required: true },
+    languages: { type: String, required: true },
     bank_details: bankDetails,
     payment_details: paymentDetailsModel,
 

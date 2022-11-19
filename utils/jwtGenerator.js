@@ -42,16 +42,22 @@ function authenticateToken(req, res, next) {
         const header = req.headers['authorization'];
         const token = header && header.split(' ')[1]
 
+        console.log(1)
         if (token === null || token === undefined) {
             console.log("Missing Token")
             return res.status(401).send(jsonResponse("Missing Token", 401));
         }
 
+        console.log(2)
+        console.log(token)
         jwt.verify(token, access_token_secret, (err, { user_id, is_host }) => {
+            console.log(3)
             if (err) {
+                console.log(4)
                 console.error("Error occurred during validation : " + err);
                 res.status(401).send(jsonResponse("Invalid Token", 401))
             }
+            console.log(5)
             console.log("Valid Token")
             req.user_id = user_id;
             req.is_host = is_host;
