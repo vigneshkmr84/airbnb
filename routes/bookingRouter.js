@@ -6,9 +6,12 @@ const { authenticateToken } = require('../utils/jwtGenerator');
 const router = express.Router();
 var jsonParser = bodyParser.json();
 
-router.get('/booking/:id', jsonParser, bookingController.getBookingById);
-router.post('/booking', jsonParser, bookingController.createBooking);
+
+
+// Assignment 4 API's 
+router.get('/bookings/:id', jsonParser, bookingController.getBookingById);
+router.post('/bookings', jsonParser, bookingController.createBooking);
 router.get('/bookings', jsonParser, bookingController.getBookings);
-router.delete('/booking/:id', jsonParser, bookingController.cancelBooking);
+router.delete('/bookings/:id', jsonParser, bookingController.cancelBooking);
 
 module.exports = router;

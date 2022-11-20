@@ -53,7 +53,23 @@ const deleteProperty = async (req, res) => {
 const getPropertyBasedOnQuery = async (req, res) => {
     //let id = req.params.id
     console.log("Inside get property based on query parameters");
-    let query = req.query
+    let host_id = req.headers.host_id
+    let query = {}
+    // console.log(Object.keys(req.query).length !== 0)
+
+    /* if (Object.keys(req.query).length === 0) {
+        query = { host_id: host_id }
+    } else {
+        query = {}
+    } */
+    // console.log(typeof (host_id) === "undefined")
+    if (typeof (host_id) === "undefined") {
+        // query = { host_id: host_id }
+        query = {}
+    } else {
+        query = { host_id: host_id }
+    }
+
     let sortingOrder = { created_at: -1, avg_rating: -1 }
     console.log("Query : " + JSON.stringify(query));
     console.log("Sort : " + JSON.stringify(sortingOrder))
@@ -69,6 +85,36 @@ const getPropertyBasedOnQuery = async (req, res) => {
     }
 };
 
+const updateProperty = async (req, res) => {
+    let _id = req.params.id;
+    let updateQuery = {};
+    let body = req.body;
+    if (body == {}) {
+        res.status(404).send(jsonResponse("No Updates for user", 404));
+    }
+    let keys = Object.keys(body);
+    let values = Object.values(body);
+
+    for (let i = 0; i < keys.length; i++)
+        updateQuery[keys[i]] = values[i];
+
+    console.log("Update Query : ");
+    console.log(updateQuery);
+
+    await propertyModel.updateOne(
+        { _id: new bson.ObjectId(_id) }
+        , { $set: updateQuery }
+        , function (err, success) {
+            if (err) {
+                console.log("Error occurred during update : " + err);
+                res.status(500).send(Internal_Server_Error);
+            } else {
+                console.log("Updated successfully");
+                res.status(200).send(jsonResponse("Updated Successfully", 200));
+            }
+        }
+    ).clone();
+}
 
 const findPropertyById = async (_id) => {
     return await propertyModel.findById(new bson.ObjectId(_id));
@@ -133,4 +179,4 @@ function getPropertyImagesObject(imagesList, _id) {
     // console.log(imagesList)
     return imagesList;
 }
-module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages, findPropertyById };
+module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages, findPropertyById, updateProperty };

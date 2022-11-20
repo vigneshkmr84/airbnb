@@ -13,9 +13,11 @@ router.get('/property/:id/images', jsonParser, propertyController.getPropertyIma
 
 router.get('/search', jsonParser, propertyController.searchQuery); */
 
-router.post('/property', jsonParser, propertyController.listAProperty);
-router.delete('/property/:id', jsonParser, propertyController.deleteProperty);
-router.get('/property', jsonParser, propertyController.getPropertyBasedOnQuery);
+router.post('/properties', jsonParser, propertyController.listAProperty);
+router.get('/properties/:id', jsonParser, propertyController.getPropertyBasedOnQuery);
+router.patch('/properties/:id', jsonParser, propertyController.updateProperty);
+router.delete('/properties/:id', jsonParser, propertyController.deleteProperty);
+
 router.get('/properties', jsonParser, propertyController.getPropertyBasedOnQuery);
 
 router.get('/property/:id/images', jsonParser, propertyController.getPropertyImages);

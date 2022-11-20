@@ -19,7 +19,7 @@ const getBookings = async (req, res) => {
         let past = req.query.past;
         let query = {};
         console.log(past);
-        let user_id = req.params.id;
+        let user_id = req.query.user_id;
         console.log("Get bookings for user : " + user_id);
         if (typeof past === 'undefined') {
             console.log("Fetching All bookings");
@@ -102,12 +102,10 @@ async function validateBooking(property_id, new_start_date, new_end_date) {
 const createBooking = async (req, res) => {
     console.log("Reserve a booking");
     let body = req.body;
+    let user_id = req.query.user_id
+    body["user_id"] = user_id;
     // console.log(body)
     try {
-        // need to check for existing reservation 
-        // for the property within the given time frame
-
-
 
         // Logic
         // will append the start time and end time of the property listed 
