@@ -40,20 +40,22 @@ function authenticateToken(req, res, next) {
     console.log("Validating Token")
     try {
         const header = req.headers['authorization'];
+        console.log(header)
         const token = header && header.split(' ')[1]
 
-        console.log(1)
-        if (token === null || token === undefined) {
+        // console.log(1)
+        if (token === "undefined" || typeof (token) === "undefined") {
             console.log("Missing Token")
             return res.status(401).send(jsonResponse("Missing Token", 401));
         }
 
-        console.log(2)
-        console.log(token)
+        // console.log(2)
+        // console.log(token)
+
         jwt.verify(token, access_token_secret, (err, { user_id, is_host }) => {
-            console.log(3)
+            // console.log(3)
             if (err) {
-                console.log(4)
+                // console.log(4)
                 console.error("Error occurred during validation : " + err);
                 res.status(401).send(jsonResponse("Invalid Token", 401))
             }
@@ -64,7 +66,7 @@ function authenticateToken(req, res, next) {
             next();
         })
     } catch (ex) {
-        console.error("Exception occurred during validation " + ex);
+        console.error("Exception occurred during token validation " + ex);
         res.status(500).send(Internal_Server_Error)
     }
 }
