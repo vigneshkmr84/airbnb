@@ -17,6 +17,7 @@ router.post('/users/:id/payment', jsonParser, authenticateToken, userController.
 
 router.post('/users/:id/toHost', jsonParser, authenticateToken, userController.changeUserToHost);
 router.post('/users/:id/update', jsonParser, authenticateToken, userController.updateUserById);
+router.put('/users/:id', jsonParser, authenticateToken, userController.updateUserById);
 
 
 module.exports = router;
