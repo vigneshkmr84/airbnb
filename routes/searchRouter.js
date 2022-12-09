@@ -6,6 +6,6 @@ const { authenticateToken } = require('../utils/jwtGenerator');
 const searchRouter = express.Router();
 var jsonParser = bodyParser.json();
 
-searchRouter.get('/search/:query', jsonParser/* , authenticateToken */, propertyController.searchQuery);
+searchRouter.get('/search/:query', jsonParser, authenticateToken, propertyController.searchQuery);
 
 module.exports = searchRouter

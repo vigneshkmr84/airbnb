@@ -1,17 +1,5 @@
 const mongoose = require("mongoose");
 
-var guest_list = mongoose.Schema({
-    _id : false,
-    name: {type: String, required: true},
-    email_id : {type: String, required: true},
-});
-
-var chatModel = mongoose.Schema({
-    _id : false,
-    time: {type: Date, required: true, default: new Date()},
-    host_message : {type: String, required: true},
-    user_message: {type: String, required: true},
-});
 
 var bookingModel = mongoose.Schema({
     user_id : {type: String, required: true},

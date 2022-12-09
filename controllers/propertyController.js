@@ -51,13 +51,15 @@ const deleteProperty = async (req, res) => {
 
 // query can contain _id / host_id 
 const getPropertyBasedOnQuery = async (req, res) => {
-    //let id = req.params.id
+
     console.log("Inside get property based on query parameters");
     let query = req.query
     let sortingOrder = { created_at: -1, avg_rating: -1 }
     console.log("Query : " + JSON.stringify(query));
-    console.log("Sort : " + JSON.stringify(sortingOrder))
 
+    console.log("Sort : " + JSON.stringify(sortingOrder))
+    // query["is_active"] = true;
+    console.log(typeof(query))
     try {
         let propertiesList = await propertyModel.find(query)
             .sort(sortingOrder);

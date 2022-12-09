@@ -16,8 +16,8 @@ const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
 const getBookings = async (req, res) => {
 
     try {
-        let past = req.query.past;
         let query = {};
+        /* let past = req.query.past;
         console.log(past);
         let user_id = req.params.id;
         console.log("Get bookings for user : " + user_id);
@@ -30,12 +30,12 @@ const getBookings = async (req, res) => {
         } else if (past === 'false') {
             console.log("Fetching Future bookings");
             query = { user_id: user_id, start_date: { $gte: new Date().toISOString() } };
-        }
+        } */
         console.log(query);
         let allBookingDetails = await bookingModel.find(query);
 
         var updatedBooking = [];
-         await Promise.all(allBookingDetails.map(async function (b) {
+        await Promise.all(allBookingDetails.map(async function (b) {
             let p = await findPropertyById(b.property_id)
             let t = { ...b._doc, property_details: p }
             updatedBooking.push(t)
@@ -43,6 +43,7 @@ const getBookings = async (req, res) => {
         }))
 
         // console.log(updatedBooking)
+        updatedBooking.sort((a, b) => a.start_date > b.start_date ? -1 : a.start_date < b.start_date ? 1 : 0)
         console.log("Total fetched bookings : " + updatedBooking.length);
         res.status(200).send(jsonResponse(updatedBooking, 200));
     } catch (e) {
