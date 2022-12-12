@@ -18,7 +18,7 @@ const getBookings = async (req, res) => {
 
     try {
         let query = {};
-        /* let past = req.query.past;
+        let past = req.query.past;
         console.log(past);
         let user_id = req.params.id;
         console.log("Get bookings for user : " + user_id);
@@ -31,7 +31,7 @@ const getBookings = async (req, res) => {
         } else if (past === 'false') {
             console.log("Fetching Future bookings");
             query = { user_id: user_id, start_date: { $gte: new Date().toISOString() } };
-        } */
+        }
         console.log(query);
         let allBookingDetails = await bookingModel.find(query);
 
@@ -186,23 +186,26 @@ const cancelBooking = async (req, res) => {
     let filter = { _id: new bson.ObjectId(bookingId) };
     let update = { canceled: true };
     try {
-        let booked = await bookingModel.findOne({ _id: new bson.ObjectId(bookingId) });
-        //console.log(booked);
-        if (isValidCancelation(booked.start_date)) {
-            await bookingModel.findOneAndUpdate(
-                filter,
-                update,
-                { new: true }
-            );
-            console.log("Canceled Successfully");
-            res.status(200).send(jsonResponse("Canceled Successfully", 200));
-        } else {
-            console.log("Cancelation time is less than 48 hours.");
-            res.status(400).send(jsonResponse("Cancelation time is less than 48 hours.", 400));
-        }
+        await bookingModel.findOne(filter)
+            .then(async (booked) => {
+                console.log(booked);
+                if (isValidCancelation(booked.start_date)) {
+                    await bookingModel.findOneAndUpdate(
+                        filter,
+                        update,
+                        { new: true }
+                    );
+                    console.log("Canceled Successfully");
+                    res.status(200).send(jsonResponse("Canceled Successfully", 200));
+                } else {
+                    console.log("Cancelation time is less than 48 hours.");
+                    res.status(400).send(jsonResponse("Cancelation time is less than 48 hours.", 400));
+                }
+            });
+
 
     } catch (e) {
-        console.log("Error in cancelling booking " + e);
+        console.log("Error in cancelling booking ", e);
         res.status(500).send(Internal_Server_Error);
     }
 };
@@ -224,4 +227,9 @@ const isValidCancelation = (start_date) => {
     return false;
 }
 
-module.exports = { getBookings, createBooking, cancelBooking };
+
+const updateBooking = async (req, res) => {
+
+    return res.status(200).send(jsonResponse("Successfully Updated", 200));
+}
+module.exports = { getBookings, createBooking, cancelBooking, updateBooking };
