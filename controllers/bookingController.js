@@ -11,7 +11,8 @@ const jsonResponse = (response, status) => {
 const Internal_Server_Error = jsonResponse("Internal Server Error.", 500);
 
 
-// based on the query parameter ?past=true/false it fetches the history and future bookings
+// based on the query parameter ?past=true/false
+// it fetches the history and future bookings
 // if nothing is passed all bookings are fetched
 const getBookings = async (req, res) => {
 
@@ -54,7 +55,7 @@ const getBookings = async (req, res) => {
 
 
 async function getAllActiveBookingsForProperty(_id) {
-    let bookings = await bookingModel.find({ property_id: _id }, (err, docs) => {
+    let bookings = await bookingModel.find({ property_id: _id, canceled: false }, (err, docs) => {
         if (err) {
             console.log('Error occurred in fetching bookings :', err)
             return null
@@ -63,7 +64,6 @@ async function getAllActiveBookingsForProperty(_id) {
         }
     }).clone();
 
-    // console.log('total size : ', bookings.length);
     return bookings;
 }
 
@@ -96,6 +96,7 @@ async function validateBooking(property_id, new_start_date, new_end_date) {
     if (flag === 1)
         return false
 
+    console.log('Validation Successful')
     return true;
 }
 
@@ -139,15 +140,13 @@ const createBooking = async (req, res) => {
                     id = doc._id;
                     console.log("Booking ID : " + id);
                     res.status(200).send(jsonResponse("Booked Successfully : " + id, 200));
-                } else {
-                    console.error("Error occurred in reservation : " + err);
-                    res.status(500).send(jsonResponse("Unable to Reserve", 500));
                 }
-            }).clone();
+            });
+            /* newReservation.save()
+            .then((err, doc)) */
         }
-
     } catch (e) {
-        console.log("Error in Reservation " + e);
+        console.log("Error in Reservation ", e);
         res.status(500).send(Internal_Server_Error);
     }
 };
