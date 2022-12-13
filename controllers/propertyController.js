@@ -39,7 +39,8 @@ const deleteProperty = async (req, res) => {
     try {
         let id = req.params.id;
         console.log("Deleting property by id : " + id);
-        await propertyModel.deleteOne({ _id: id });
+        // await propertyModel.deleteOne({ _id: id });
+        await propertyModel.findByIdAndUpdate({ _id: new bson.ObjectId(id) }, { is_active: false })
         console.log("Deleted Successfully.");
         res.status(200).send(jsonResponse("Deleted Successfully", 200));
     } catch (e) {
@@ -112,7 +113,9 @@ const postPropertyImages = async (req, res) => {
         let property_id = req.params.id;
         console.log('Adding images for Property : ' + property_id);
         let imagesList = req.body;
+        console.log(imagesList)
         let imageObject = getPropertyImagesObject(imagesList, property_id)
+
         await propertyImagesModel.insertMany(imageObject, (err, docs) => {
             if (err) {
                 console.log('Error occurred during adding images : ', e);
@@ -141,7 +144,7 @@ const getPropertiesByHost = async (req, res) => {
     try {
         let host_id = req.user_id
         let propertiesList = await propertyModel.find({ host_id: host_id })
-            .select({ name: 1, is_active: 1, created_at: 1 })
+            .select({ name: 1, is_active: 1, created_at: 1, house_type: 1 })
 
         return res.send(jsonResponse(propertiesList, 200)).status(200);
     } catch (e) {
