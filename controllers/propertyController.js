@@ -59,7 +59,7 @@ const getPropertyBasedOnQuery = async (req, res) => {
 
     console.log("Sort : " + JSON.stringify(sortingOrder))
     query["is_active"] = true;
-    console.log(typeof(query))
+    console.log(typeof (query))
     try {
         let propertiesList = await propertyModel.find(query)
             .sort(sortingOrder);
@@ -135,4 +135,18 @@ function getPropertyImagesObject(imagesList, _id) {
     // console.log(imagesList)
     return imagesList;
 }
-module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages, findPropertyById };
+
+const getPropertiesByHost = async (req, res) => {
+
+    try {
+        let host_id = req.user_id
+        let propertiesList = await propertyModel.find({ host_id: host_id })
+            .select({ name: 1, is_active: 1, created_at: 1 })
+
+        return res.send(jsonResponse(propertiesList, 200)).status(200);
+    } catch (e) {
+        console.log('Exception occurred during fetch of properties by host :', e)
+        res.status(500).send(Internal_Server_Error)
+    }
+}
+module.exports = { getPropertyBasedOnQuery, listAProperty, deleteProperty, searchQuery: searchProperty, getPropertyImages, postPropertyImages, findPropertyById, getPropertiesByHost };
